@@ -2,6 +2,15 @@
 #define SHIFT_CLK 3
 #define SHIFT_LATCH 4
 
+void setAddress(int address) {
+  shiftOut(SHIFT_DATA, SHIFT_CLK, MSBFIRST, address >> 8);
+  shiftOut(SHIFT_DATA, SHIFT_CLK, MSBFIRST, address);
+
+  digitalWrite(SHIFT_LATCH, LOW);
+  digitalWrite(SHIFT_LATCH, HIGH);
+  digitalWrite(SHIFT_LATCH, LOW);
+}
+
 
 void setup() {
 
@@ -10,8 +19,7 @@ void setup() {
   pinMode(SHIFT_CLK, OUTPUT);
   pinMode(SHIFT_LATCH, OUTPUT);
 
-  shiftOut(SHIFT_DATA, SHIFT_CLK, MSBFIRST, 0xff);
-
+  setAdress(1234)
 }
 
 void loop() {
