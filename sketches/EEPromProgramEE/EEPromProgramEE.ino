@@ -3,6 +3,7 @@
 #define SHIFT_LATCH 4
 #define EEPROM_D0 5
 #define EEPROM_D7 12
+#define WRITE_EN 13
 
 void setAddress(int address, bool outputEnable) {
   shiftOut(SHIFT_DATA, SHIFT_CLK, MSBFIRST, (address >> 8 ) | (outputEnable ? 0x00 : 0x80));
@@ -14,31 +15,35 @@ void setAddress(int address, bool outputEnable) {
 }
 
 byte readEEPROM(int address) {
-  setAddress(address, /*outputEnable*/ true);
-  byte data = 0;
-  for (int pin = EEPROM_D7; pin >= EEPROM_D0; pin -= 1) {
-    data = (data << 1) + digitalRead(pin);
+  for (int pin = EEPROM_D0; pin <= EEPROM_D7; pin += 1) {
+    pinMode(pin, INPUT);
   }
-  return data;
-}
+
+    setAddress(address, /*outputEnable*/ true);
+    byte data = 0;
+    for (int pin = EEPROM_D7; pin >= EEPROM_D0; pin -= 1) {
+      data = (data << 1) + digitalRead(pin);
+    }
+    return data;
+  }
 
 void writeEEPROM(int address, byte data) {
-  setAddress(address, /*outputEnable*/ false);
-  for (int pin = EEPROM_D0; pin <= EEPROM_D7; pin += 1) {
-    digitalWrite(pin, data & 1);
-    data = data >> 1; 
+    for (int pin = EEPROM_D0; pin <= EEPROM_D7; pin += 1) {
+      pinMode(pin, OUTPUT);
+    }
+
+    setAddress(address, /*outputEnable*/ false);
+    for (int pin = EEPROM_D0; pin <= EEPROM_D7; pin += 1) {
+      digitalWrite(pin, data & 1);
+      data = data >> 1;
+    }
+    digitalWrite(WRITE_EN, LOW);
+    delayMicroseconds(1);
+    digitalWrite(WRITE_EN, HIGH);
+    delay(10);
   }
-}
 
-void setup() {
-
-  // put your setup code here, to run once:
-  pinMode(SHIFT_DATA, OUTPUT);
-  pinMode(SHIFT_CLK, OUTPUT);
-  pinMode(SHIFT_LATCH, OUTPUT);
-
-  Serial.begin(57600);
- 
+  void printContents() {
     for (int base = 0; base <= 255; base += 16) {
       byte data[16];
       for (int offset = 0; offset <= 15; offset += 1) {
@@ -51,9 +56,24 @@ void setup() {
         data[8], data[9], data[10], data[11], data[12], data[13], data[14], data[15]);
   
       Serial.println(buf);
-  }  
-}
-void loop() {
-  // put your main code here, to run repeatedly:
+    }  
+  }
 
-}
+  void setup() {
+
+    // put your setup code here, to run once:
+    pinMode(SHIFT_DATA, OUTPUT);
+    pinMode(SHIFT_CLK, OUTPUT);
+    pinMode(SHIFT_LATCH, OUTPUT);
+    digitalWrite(WRITE_EN, HIGH);
+    pinMode(WRITE_EN, OUTPUT);
+    Serial.begin(57600);
+
+    writeEEPROM(0, 0x55);
+    printContents();
+    
+  }
+  void loop() {
+    // put your main code here, to run repeatedly:
+
+  }
