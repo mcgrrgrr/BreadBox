@@ -69,7 +69,9 @@ void writeEEPROM(int address, byte data) {
     pinMode(WRITE_EN, OUTPUT);
     Serial.begin(57600);
 
-    writeEEPROM(0, 0x55);
+    for (int address = 0; address <= 255; address += 1) {
+      writeEEPROM(address, 0x00);
+    }
     printContents();
     
   }
