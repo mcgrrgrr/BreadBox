@@ -40,7 +40,7 @@ void writeEEPROM(int address, byte data) {
     digitalWrite(WRITE_EN, LOW);
     delayMicroseconds(1);
     digitalWrite(WRITE_EN, HIGH);
-    delay(10);
+    delay(5);
   }
 
   void printContents() {
@@ -59,6 +59,8 @@ void writeEEPROM(int address, byte data) {
     }  
   }
 
+  byte data [] = {0x01, 0x4f, 0x12, 0x06, 0x4c, 0x24, 0x20, 0x0f, 0x00, 0x04, 0x08, 0x60, 0x31, 0x42, 0x30, 0x38 };
+
   void setup() {
 
     // put your setup code here, to run once:
@@ -69,9 +71,15 @@ void writeEEPROM(int address, byte data) {
     pinMode(WRITE_EN, OUTPUT);
     Serial.begin(57600);
 
-    for (int address = 0; address <= 255; address += 1) {
-      writeEEPROM(address, 0x00);
+    // Erase entire EEPROM
+    for (int address = 0; address <= 2047; address += 1) {
+      writeEEPROM(address, 0xff);
     }
+
+    for (int address = 0; address <= 15; address += 1) {
+      writeEEPROM(address, data[address]);
+    }
+    
     printContents();
     
   }
