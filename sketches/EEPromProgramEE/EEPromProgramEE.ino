@@ -40,7 +40,7 @@ void writeEEPROM(int address, byte data) {
     digitalWrite(WRITE_EN, LOW);
     delayMicroseconds(1);
     digitalWrite(WRITE_EN, HIGH);
-    delay(5);
+    delay(10);
   }
 
   void printContents() {
@@ -58,9 +58,12 @@ void writeEEPROM(int address, byte data) {
       Serial.println(buf);
     }  
   }
+  // 4-bit hex decoder for common anode 7-segment display
+  //byte data [] = { 0x81, 0xcf, 0x92, 0x86, 0xcc, 0xa4, 0xa0, 0x8f, 0x80, 0x88, 0xe0, 0xb1, 0xc2, 0xb0, 0xb8 };
 
-  byte data [] = {0x01, 0x4f, 0x12, 0x06, 0x4c, 0x24, 0x20, 0x0f, 0x00, 0x04, 0x08, 0x60, 0x31, 0x42, 0x30, 0x38 };
-
+  // 4-bit hex decoder for common cathode 7-segment display
+  byte data [] = { 0x7e, 0x30, 0x6d, 0x79, 0x33, 0x5b, 0x5f, 0x70, 0x7f, 0x7b, 0x1f, 0x4e, 0x3d, 0x4f, 0x47 };
+ 
   void setup() {
 
     // put your setup code here, to run once:
@@ -69,13 +72,13 @@ void writeEEPROM(int address, byte data) {
     pinMode(SHIFT_LATCH, OUTPUT);
     digitalWrite(WRITE_EN, HIGH);
     pinMode(WRITE_EN, OUTPUT);
-    Serial.begin(57600);
+    Serial.begin(38400);
 
     // Erase entire EEPROM
     for (int address = 0; address <= 2047; address += 1) {
       writeEEPROM(address, 0xff);
     }
-
+    // Write data to address
     for (int address = 0; address <= 15; address += 1) {
       writeEEPROM(address, data[address]);
     }
