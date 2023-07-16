@@ -62,7 +62,7 @@ void writeEEPROM(int address, byte data) {
   //byte data [] = { 0x81, 0xcf, 0x92, 0x86, 0xcc, 0xa4, 0xa0, 0x8f, 0x80, 0x88, 0xe0, 0xb1, 0xc2, 0xb0, 0xb8 };
 
   // 4-bit hex decoder for common cathode 7-segment display
-  byte data [] = { 0x7e, 0x30, 0x6d, 0x79, 0x33, 0x5b, 0x5f, 0x70, 0x7f, 0x7b, 0x1f, 0x4e, 0x3d, 0x4f, 0x47 };
+  //byte data [] = { 0x7e, 0x30, 0x6d, 0x79, 0x33, 0x5b, 0x5f, 0x70, 0x7f, 0x7b, 0x1f, 0x4e, 0x3d, 0x4f, 0x47 };
  
   void setup() {
 
@@ -75,13 +75,26 @@ void writeEEPROM(int address, byte data) {
     Serial.begin(38400);
 
     // Erase entire EEPROM
+    Serial.print("Erasing EEPROM");
     for (int address = 0; address <= 2047; address += 1) {
       writeEEPROM(address, 0xff);
+    
+      if (address % 64 == 0) {
+        Serial.print(".");
+      }
     }
+    Serial.println(" done.");
+    
     // Write data to address
+    Serial.print("Programming EEPROM");
     for (int address = 0; address <= 15; address += 1) {
       writeEEPROM(address, data[address]);
+
+            if (address % 64 == 0) {
+        Serial.print(".");
+      }
     }
+    Serial.println(" done.");
     
     printContents();
     
